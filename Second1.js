@@ -5,66 +5,79 @@ import {
   Image,
   ScrollView,
   TouchableOpacity,
-  Alert,
+  Button,
+  Modal,
 } from 'react-native';
 import { useState } from 'react';
 
-export default function Second1({ route }) {
+export default function Second1({ route, navigation }) {
   const { number } = route.params;
 
+  // State to control modal visibility
+  const [modalVisible, setModalVisible] = useState(false);
+
+  // State to store the selected character for the modal
+  const [selectedCharacter, setSelectedCharacter] = useState(null);
+
+  // State for disabling clicked boxes
   const [disabledBoxes, setDisabledBoxes] = useState([]);
   const [boxCharacters, setBoxCharacters] = useState([]);
 
+  // Generate characters based on player count
   const getCharacterForPlayer = (number) => {
-
     let char = [];
     if (number === 4) {
       char = ['Werewolf', 'Seer', 'Healer', 'Villager'];
     } else if (number > 4 && number <= 7) {
       char = ['Werewolf', 'Seer', 'Healer', ...char];
     } else if (number > 7 && number < 12) {
-      char = ['Werewolf', 'Werewolf', 'Seer', 'Healer', ...char];
+      char = [
+        'Werewolf',
+        'Werewolf',
+        'Seer',
+        'Healer',
+        ...char,
+      ];
     } else {
-      char = ['Werewolf', 'Werewolf', 'Werewolf', 'Seer', 'Healer', ...char];
+      char = [
+        'Werewolf',
+        'Werewolf',
+        'Werewolf',
+        'Seer',
+        'Healer',
+        ...char,
+      ];
     }
 
-    const villagersCount=number-char.length;
-    char=[...char,...Array(villagersCount).fill('Villager')];
+    const villagersCount = number - char.length;
+    char = [...char, ...Array(villagersCount).fill('Villager')];
 
     return char;
   };
 
-
-
+  // Initialize remaining characters
   const [remainingChars, setRemainingChars] = useState(
     getCharacterForPlayer(number)
   );
 
   const handleBoxClick = (index) => {
-    if (!disabledBoxes.includes(index) && remainingChars.length>0)
-    {
+    if (!disabledBoxes.includes(index) && remainingChars.length > 0) {
       const randomIndex = Math.floor(Math.random() * remainingChars.length);
       const selectedChar = remainingChars[randomIndex];
 
-       setDisabledBoxes([...disabledBoxes, index]);
+      // Update state for clicked box
+      setDisabledBoxes([...disabledBoxes, index]);
       setBoxCharacters({ ...boxCharacters, [index]: selectedChar });
 
-      const newremainingChars=[...remainingChars];
-      newremainingChars.splice(randomIndex,1);
-      setRemainingChars(newremainingChars);
+      // Remove character from the remaining list
+      const newRemainingChars = [...remainingChars];
+      newRemainingChars.splice(randomIndex, 1);
+      setRemainingChars(newRemainingChars);
 
-      
-      Alert.alert('You are a', selectedChar, [
-        {
-          text: 'Close',
-        },
-      ]);
+      // Show modal with selected character
+      setSelectedCharacter(selectedChar);
+      setModalVisible(true);
     }
-  };
-
-  const printCharacters = () => {
-    
-    return char[randomIndex];
   };
 
   const boxes = Array.from({ length: number }, (_, index) => (
@@ -73,22 +86,77 @@ export default function Second1({ route }) {
       onPress={() => handleBoxClick(index)}
       disabled={disabledBoxes.includes(index)}>
       <View
-        key={index}
         style={[styles.box, disabledBoxes.includes(index) && styles.openedBox]}>
         <Text style={styles.player}>Player {index + 1}</Text>
-
         <Image source={require('../assets/profile.jpg')} style={styles.img} />
+  
       </View>
     </TouchableOpacity>
   ));
+
   return (
     <View style={styles.container}>
-      <Text style={styles.head}>Pick one Card</Text>
+      {/* Header */}
+      <View style={styles.head}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => navigation.navigate('FirstPage')}>
+          <Text style={styles.text}>{'\u2302'}</Text>
+        </TouchableOpacity>
+        <Text style={styles.heading}>Pick one Card</Text>
+      </View>
       <View style={styles.line}></View>
 
+      {/* Player Boxes */}
       <ScrollView vertical contentContainerStyle={styles.boxContainers}>
         {boxes}
       </ScrollView>
+
+      {/* Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalText}>You are a:</Text>
+            <Text style={styles.characterText}>{selectedCharacter}</Text>
+
+              {selectedCharacter === "Werewolf" && (
+                <Image 
+                  source={require('../assets/wolfpic.jpeg')} 
+                  style={styles.charimg} 
+                />
+              )}
+
+            {selectedCharacter === "Healer" && (
+                <Image 
+                  source={require('../assets/healerpic.jpeg')} 
+                  style={styles.charimg} 
+                />
+              )}
+            } 
+             {selectedCharacter === "Seer" && (
+                <Image 
+                  source={require('../assets/seerpic.jpg')} 
+                  style={styles.charimg} 
+                />
+              )}
+            {selectedCharacter === "Villager" && (
+                <Image 
+                  source={require('../assets/villagerpic.jpeg')} 
+                  style={styles.charimg} 
+                />
+              )}
+            <Button
+              title="Close"
+              onPress={() => setModalVisible(false)}
+              color="purple"
+            />
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -96,18 +164,17 @@ export default function Second1({ route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // justifyContent: 'center',
-    backgroundColor: '#d68df2',
+    backgroundColor: '#e1a4f5',
   },
   box: {
     width: 130,
     height: 160,
     backgroundColor: 'white',
     borderRadius: 20,
-    elevation:10,
+    elevation: 10,
     margin: 7,
     marginBottom: 10,
-    borderWidth: 0.875, // Border width (black border)
+    borderWidth: 0.875,
     borderColor: 'black',
   },
   openedBox: {
@@ -120,11 +187,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexWrap: 'wrap',
   },
-  head: {
-    fontSize: 30,
-    textAlign: 'center',
-    padding: 0,
-    marginTop: 70,
+  heading: {
+    fontSize: 29,
+    marginTop: 55,
+    paddingTop: 17,
+    marginRight: 42,
     marginBottom: 20,
   },
   img: {
@@ -138,12 +205,61 @@ const styles = StyleSheet.create({
     fontSize: 20,
     textAlign: 'center',
     padding: 10,
-    textShadowColor: 'black',
   },
   line: {
     width: '100%',
-    height: 2,
+    height: 1.75,
     backgroundColor: 'black',
     marginBottom: 20,
   },
+  button: {
+    backgroundColor: '#e1a4f5',
+    borderRadius: 5,
+    marginTop: 50,
+    paddingTop: 17,
+  },
+  text: {
+    textAlign: 'center',
+    fontSize: 24,
+    padding: 10,
+  },
+  head: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: 300,
+    height:350,
+    padding: 20,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalText: {
+    fontSize: 18,
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  characterText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  charimg: {
+    width: 170,
+    height: 170,
+    borderRadius: 20,
+    alignSelf: 'center',
+    padding: 3,
+    marginBottom:12,
+  },
+ 
 });
