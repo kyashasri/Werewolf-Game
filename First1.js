@@ -3,7 +3,7 @@ import React,{useState} from 'react';
 import { useFonts } from 'expo-font';
 
 export default function First1({navigation}) {
-  const img = require('../assets/werewolf.jpeg');
+  const img = require('../assets/werewolf_super_hd.jpeg');
   //  let [fontsLoaded] = useFonts({
   //   'Creepster': require('../assets/Creepster-Regular.ttf'),
   // });
@@ -37,9 +37,16 @@ export default function First1({navigation}) {
         </View>
       </View>
 
+       <View style={styles.aboutbtn}>
+        <TouchableOpacity onPress={()=>navigation.navigate("ThirdPage")}>
+          <Text style={styles.about}> ABOUT </Text>
+        </TouchableOpacity>
+      
+      </View>
+
        <View style={styles.strtbtn}>
         <TouchableOpacity onPress={()=>navigation.navigate("SecondPage",{number})}>
-          <Text style={styles.strt}> Start </Text>
+          <Text style={styles.strt}> START </Text>
         </TouchableOpacity>
       
       </View>
@@ -72,7 +79,7 @@ const styles = StyleSheet.create({
     textShadowRadius: 5,  
   },
   naa:{
-    marginTop:350,
+    marginTop:330,
     display:'flex',
     flexDirection:'row',
     backgroundColor:'#efdaf5',
@@ -122,14 +129,27 @@ const styles = StyleSheet.create({
     fontSize:300,
     justifyContent:'center',
     alignItems:'center',
-    marginTop:60,
+    marginTop:30,
     borderRadius:14,
     alignSelf:'center',
   },
   strt:{
-    fontSize:25,
+    fontSize:20,
+  },
+  aboutbtn:{
+    width:120,
+    height:60,
+    backgroundColor:'#efdaf5',
+    fontSize:300,
+    justifyContent:'center',
+    alignItems:'center',
+    marginTop:30,
+    borderRadius:14,
+    alignSelf:'center',
+  },
+  about:{
+    fontSize:20,
   }
-  
 
 
 
